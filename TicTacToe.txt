@@ -1,0 +1,151 @@
+activity_main.xml:
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tic Tac Toe"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 3x3 Grid for Tic Tac Toe -->
+    <GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:rowCount="3"
+        android:columnCount="3">
+
+<!-- Buttons for each cell -->
+        <Button android:id="@+id/button1" android:layout_width="100dp" android:layout_height="100dp" android:textSize="24sp" />
+        <Button android:id="@+id/button2" android:layout_width="100dp" android:layout_height="100dp" android:textSize="24sp" />
+        <Button android:id="@+id/button3" android:layout_width="100dp" android:layout_height="100dp" android:textSize="24sp" />
+        <Button android:id="@+id/button4" android:layout_width="100dp" android:layout_height="100dp" android:textSize="24sp" />
+        <Button android:id="@+id/button5" android:layout_width="100dp" android:layout_height="100dp" android:textSize="24sp" />
+        <Button android:id="@+id/button6" android:layout_width="100dp" android:layout_height="100dp" android:textSize="24sp" />
+        <Button android:id="@+id/button7" android:layout_width="100dp" android:layout_height="100dp" android:textSize="24sp" />
+        <Button android:id="@+id/button8" android:layout_width="100dp" android:layout_height="100dp" android:textSize="24sp" />
+        <Button android:id="@+id/button9" android:layout_width="100dp" android:layout_height="100dp" android:textSize="24sp" />
+    </GridLayout>
+
+    <!-- Reset Button -->
+    <Button
+        android:id="@+id/resetButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset Game"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>
+
+MainActivity.java:
+
+package com.example.tictaktoe;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.GridLayout;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+    private boolean playerX = true; // True for Player X, False for Player O
+    private String[][] board = new String[3][3];
+    private TextView titleText;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        titleText = findViewById(R.id.titleText);
+        GridLayout gridLayout = findViewById(R.id.gridLayout);
+
+        // Initialize board and set click listeners
+        for (int i = 0; i < gridLayout.getChildCount(); i++) {
+            final int row = i / 3;
+            final int col = i % 3;
+            Button button = (Button) gridLayout.getChildAt(i);
+            board[row][col] = "";
+            button.setOnClickListener(v -> onCellClicked(button, row, col));
+        }
+// Reset Button
+        findViewById(R.id.resetButton).setOnClickListener(v -> resetGame());
+    }
+
+    private void onCellClicked(Button button, int row, int col) {
+        if (!board[row][col].isEmpty()) {
+            return; // Cell already occupied
+        }
+
+        // Update board and UI
+        board[row][col] = playerX ? "X" : "O";
+        button.setText(board[row][col]);
+
+        // Check for winner
+        if (checkWinner()) {
+            titleText.setText(playerX ? "Player X Wins!" : "Player O Wins!");
+            disableBoard();
+            return;
+        }
+
+        // Switch player
+        playerX = !playerX;
+        titleText.setText(playerX ? "Player X's Turn" : "Player O's Turn");
+    }
+
+    private boolean checkWinner() {
+        // Check rows, columns, and diagonals
+        for (int i = 0; i < 3; i++) {
+            if (!board[i][0].isEmpty() && board[i][0].equals(board[i][1]) && board[i][1].equals(board[i][2])) {
+                return true;
+  }
+            if (!board[0][i].isEmpty() && board[0][i].equals(board[1][i]) && board[1][i].equals(board[2][i])) {
+                return true;
+            }
+        }
+        if (!board[0][0].isEmpty() && board[0][0].equals(board[1][1]) && board[1][1].equals(board[2][2])) {
+            return true;
+        }
+        if (!board[0][2].isEmpty() && board[0][2].equals(board[1][1]) && board[1][1].equals(board[2][0])) {
+            return true;
+        }
+        return false;
+    }
+
+    private void disableBoard() {
+        GridLayout gridLayout = findViewById(R.id.gridLayout);
+        for (int i = 0; i < gridLayout.getChildCount(); i++) {
+            gridLayout.getChildAt(i).setEnabled(false);
+        }
+    }
+ private void resetGame() {
+        playerX = true;
+        titleText.setText("Player X's Turn");
+        GridLayout gridLayout = findViewById(R.id.gridLayout);
+
+        // Clear board and UI
+        for (int i = 0; i < gridLayout.getChildCount(); i++) {
+            Button button = (Button) gridLayout.getChildAt(i);
+            button.setText("");
+            button.setEnabled(true);
+        }
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                board[row][col] = "";
+            }
+        }
+    }
+}
